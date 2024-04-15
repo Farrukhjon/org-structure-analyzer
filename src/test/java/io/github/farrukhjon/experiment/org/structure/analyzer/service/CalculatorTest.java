@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 /**
  * @author fsattorov
  */
-class CalculatorTest extends BaseTest {
+final class CalculatorTest extends BaseTest {
 
-    final Calculator calculator = new DefaultCalculator();
+    private final Calculator calculator = new DefaultCalculator();
 
     @Test
     @DisplayName("Test calculate salary percentage difference between a manager and its subordinates")

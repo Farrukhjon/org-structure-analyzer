@@ -4,10 +4,11 @@ import io.github.farrukhjon.experiment.org.structure.analyzer.model.ReportResult
 import java.util.function.Predicate;
 
 /**
+ * Base test class provides common testing functionalities to its subclasses.
+ *
  * @author fsattorov
  */
 public class BaseTest {
-
 
     protected Predicate<ReportResult> byFullName(final String fullName) {
         return reportResult -> reportResult.getEmployeeFullName().equals(fullName);

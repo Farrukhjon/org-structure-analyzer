@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author fsattorov
  */
-public class Application {
+public final class Application {
 
     private final CliOptionProvider cliOptionProvider;
 

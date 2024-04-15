@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author fsattorov
  */
-class ReporterIT extends BaseTest {
+final class ReporterIT extends BaseTest {
 
     private final Reporter reporter = new DefaultReporter(new CsvObjectMapper(), new DefaultCalculator());
 
