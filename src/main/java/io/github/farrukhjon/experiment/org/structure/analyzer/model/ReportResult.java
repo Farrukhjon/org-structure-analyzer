@@ -1,6 +1,7 @@
 package io.github.farrukhjon.experiment.org.structure.analyzer.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
@@ -23,6 +24,7 @@ public final class ReportResult {
     private double salaryDifference;
 
     private List<Employee> subordinates;
+
     private List<Integer> reportingLineIds;
 
     public int getId() {
@@ -87,6 +89,23 @@ public final class ReportResult {
 
     public List<Integer> getReportingLineIds() {
         return this.reportingLineIds;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        final ReportResult that = (ReportResult) o;
+        return this.id == that.id && Objects.equals(this.employeeFullName, that.employeeFullName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id, this.employeeFullName);
     }
 
     @Override
