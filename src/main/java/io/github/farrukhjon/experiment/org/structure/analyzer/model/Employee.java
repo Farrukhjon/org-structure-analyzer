@@ -81,13 +81,16 @@ public final class Employee {
             return false;
         }
         final Employee employee = (Employee) o;
-        return this.id == employee.id && Objects.equals(this.firstName, employee.firstName) &&
-            Objects.equals(this.lastName, employee.lastName);
+        return
+            this.id == employee.id
+                && Objects.equals(this.firstName, employee.firstName)
+                && Objects.equals(this.lastName, employee.lastName)
+                && Objects.equals(this.managerId, employee.managerId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.firstName, this.lastName);
+        return Objects.hash(this.id, this.firstName, this.lastName, this.managerId);
     }
 
     @Override
