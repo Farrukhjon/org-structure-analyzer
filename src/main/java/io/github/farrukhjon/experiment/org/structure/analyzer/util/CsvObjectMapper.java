@@ -35,7 +35,12 @@ public class CsvObjectMapper implements ObjectMapper {
                     employee.setId(Integer.parseInt(fields[0]));
                     employee.setFirstName(fields[1]);
                     employee.setLastName(fields[2]);
-                    employee.setSalary(Double.parseDouble(fields[3]));
+                    final String salaryStr = fields[3];
+                    final double salary = salaryStr == null || salaryStr.isEmpty() ? Double.NaN : Double.parseDouble(salaryStr);
+                    if (Double.isNaN(salary)) {
+                        System.err.printf("Employee with ID %s has NaN salary!%n", employee.getId());
+                    }
+                    employee.setSalary(salary);
                     if (fields.length == 5) {
                         employee.setManagerId(Integer.parseInt(fields[4]));
                     }

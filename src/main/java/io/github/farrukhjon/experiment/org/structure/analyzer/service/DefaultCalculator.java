@@ -18,11 +18,13 @@ public class DefaultCalculator implements Calculator {
 
     @Override
     public List<ReportResult> calculate(final Map<Integer, Employee> employees) {
+        this.validate(employees);
         return employees.values()
             .stream()
-            .filter(employee -> Objects.nonNull(employee.getManagerId()))
+            .filter(employee -> Objects.nonNull(employee.getManagerId()) && !Double.isNaN(employee.getSalary()))
             .collect(
-                Collectors.groupingBy(Employee::getManagerId, Collectors.mapping(defineReportingLineIds(employees), Collectors.toList()))
+                Collectors.groupingBy(Employee::getManagerId,
+                    Collectors.mapping(this.defineReportingLineIds(employees), Collectors.toList()))
             )
             .entrySet()
             .stream()
@@ -49,7 +51,7 @@ public class DefaultCalculator implements Calculator {
             final double salaryDifference = managerSalary - averageSalaryOfSubordinates;
             reportResult.setSalaryDifference(salaryDifference);
             reportResult.setSalaryPercentageDifference(
-                String.format("%s%%", calculateSalaryPercentageDiff(averageSalaryOfSubordinates, salaryDifference)));
+                String.format("%s%%", this.calculateSalaryPercentageDiff(averageSalaryOfSubordinates, salaryDifference)));
             reportResult.setSubordinates(subordinates);
             reportResult.setReportingLineIds(manager.getReportingLineIds());
         } else {
@@ -59,21 +61,28 @@ public class DefaultCalculator implements Calculator {
         return reportResult;
     }
 
-    private static double calculateSalaryPercentageDiff(final double averageSalaryOfSubordinates, final double salaryDifference) {
+    private double calculateSalaryPercentageDiff(final double averageSalaryOfSubordinates, final double salaryDifference) {
         final double salaryPercentDifference = (salaryDifference / averageSalaryOfSubordinates) * 100;
         return Math.floor(salaryPercentDifference * 100) / 100;
     }
 
-    private static Function<Employee, Employee> defineReportingLineIds(final Map<Integer, Employee> employees) {
+    private Function<Employee, Employee> defineReportingLineIds(final Map<Integer, Employee> employees) {
         return employee -> {
             Integer managerId = employee.getManagerId();
-            while (managerId != null) {
+            while (managerId != null && !Double.isNaN(employee.getSalary())) {
                 final Employee manager = employees.get(managerId);
                 employee.getReportingLineIds().add(managerId);
                 managerId = manager.getManagerId();
             }
             return employee;
         };
+    }
+
+    private void validate(final Map<Integer, Employee> employees) {
+        Objects.requireNonNull(employees, "The employees map is null!");
+        if (employees.isEmpty()) {
+            throw new IllegalArgumentException("The employees map is empty!");
+        }
     }
 
 
