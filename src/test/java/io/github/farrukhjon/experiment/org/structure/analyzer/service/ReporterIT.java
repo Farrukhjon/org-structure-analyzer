@@ -3,8 +3,6 @@ package io.github.farrukhjon.experiment.org.structure.analyzer.service;
 import io.github.farrukhjon.experiment.org.structure.analyzer.model.ReportResult;
 import io.github.farrukhjon.experiment.org.structure.analyzer.util.CsvObjectMapper;
 import java.io.File;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -23,9 +21,7 @@ final class ReporterIT extends BaseTest {
     void testGenerateReport() throws Exception {
         //given:
         final String testFileName = "employees.csv";
-        final URL testFileUri = this.getClass().getClassLoader().getResource(testFileName);
-        Assertions.assertNotNull(testFileUri);
-        final File file = Paths.get(testFileUri.toURI()).toFile();
+        final File file = this.loadFileFromClasspath(testFileName);
 
         //when:
         final List<ReportResult> reportResults = this.reporter.generateReport(file);
@@ -44,5 +40,6 @@ final class ReporterIT extends BaseTest {
         final int expectedNumberOfManagers = 3;
         Assertions.assertEquals(expectedNumberOfManagers, reportResults.size());
     }
+
 
 }

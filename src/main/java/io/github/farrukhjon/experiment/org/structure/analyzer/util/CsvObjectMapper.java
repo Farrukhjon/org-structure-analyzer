@@ -4,6 +4,8 @@ import io.github.farrukhjon.experiment.org.structure.analyzer.model.Employee;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +40,6 @@ public class CsvObjectMapper implements ObjectMapper {
                 .skip(1)
                 .filter(line -> !line.isEmpty())
                 .map(this::toEmployee)
-                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Employee::getId, Function.identity()));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -53,45 +54,30 @@ public class CsvObjectMapper implements ObjectMapper {
      */
     private Employee toEmployee(final String line) {
         Objects.requireNonNull(line);
-        final String[] fields = line.split(",");
+        final LinkedList<String> csvValues = Arrays.stream(line.split(",")).collect(Collectors.toCollection(LinkedList::new));
         final Employee employee = new Employee();
-        final int idIdx = 0;
-        if (this.hasIndex(fields, idIdx)) {
-            employee.setId(Integer.parseInt(fields[idIdx]));
-        } else {
-            System.err.printf("Failed to map %s string line to object type of %s%n", line, Employee.class.getName());
-            return null;
+        employee.setId(Integer.parseInt(pollFirstAndRemove(csvValues, "ID value is required!")));
+        employee.setFirstName(pollFirstAndRemove(csvValues, "First name value is required!"));
+        employee.setLastName(pollFirstAndRemove(csvValues, "Last name value is required!"));
+        final String salaryStr = csvValues.pollFirst();
+        final double salary = salaryStr == null || salaryStr.isEmpty() ? Double.NaN : Double.parseDouble(salaryStr);
+        if (Double.isNaN(salary)) {
+            System.err.printf("Employee with ID %s has NaN salary!%n", employee.getId());
         }
-        final int fNameIdx = 1;
-        if (this.hasIndex(fields, fNameIdx)) {
-            employee.setFirstName(fields[fNameIdx]);
-        }
-        final int lNameIdx = 2;
-        if (this.hasIndex(fields, lNameIdx)) {
-            employee.setLastName(fields[lNameIdx]);
-        }
-        final int salaryIdx = 3;
-        if (this.hasIndex(fields, salaryIdx)) {
-            final String salaryStr = fields[salaryIdx];
-            final double salary = salaryStr == null || salaryStr.isEmpty() ? Double.NaN : Double.parseDouble(salaryStr);
-            if (Double.isNaN(salary)) {
-                System.err.printf("Employee with ID %s has NaN salary!%n", employee.getId());
-            }
-            employee.setSalary(salary);
-        }
-        final int managerIdIdx = 4;
-        if (this.hasIndex(fields, managerIdIdx)) {
-            employee.setManagerId(Integer.parseInt(fields[managerIdIdx]));
+        employee.setSalary(salary);
+        final String managerId = csvValues.pollFirst();
+        if (managerId != null && !managerId.isEmpty()) {
+            employee.setManagerId(Integer.parseInt(managerId));
         }
         return employee;
     }
 
-    private boolean hasIndex(final String[] array, final int index) {
-        try {
-            Objects.checkIndex(index, array.length);
-        } catch (IndexOutOfBoundsException e) {
-            return false;
+    private static String pollFirstAndRemove(final LinkedList<String> strings, final String errorMessage) {
+        final String value = strings.pollFirst();
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(errorMessage);
         }
-        return true;
+        return value;
     }
+
 }
